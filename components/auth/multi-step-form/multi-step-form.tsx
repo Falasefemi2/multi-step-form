@@ -104,7 +104,7 @@ export default function MultiStepForm() {
                 Already have an account?{" "}
                 <Link
                     href="/login"
-                    className="text-blue-600 hover:underline"
+                    className="text-primary hover:underline"
                 >
                     Log In
                 </Link>
