@@ -41,19 +41,17 @@ export const LoginAccount = actionClient
         });
 
         return {
-          data: { success: "Logged in successfully." },
+          data: { success: "Logged in successfully.", redirectUrl: "/" },
         };
       } catch (error) {
         console.error("Authentication error:", error);
-        return {
-          data: { error: "Invalid email or password. Please try again." },
-        };
+        return { error: "Invalid email or password. Please try again." };
       }
     } catch (error) {
       if (error instanceof Error) {
-        return { data: { error: error.message } };
+        return { error: error.message };
       }
       console.error(error);
-      return { data: { error: "An unexpected error occurred" } };
+      return { error: "An unexpected error occurred" };
     }
   });

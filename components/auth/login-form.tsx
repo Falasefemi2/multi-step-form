@@ -18,10 +18,13 @@ import { LoginSchema } from "@/types/login-schema";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner"
 import { LoginAccount } from "@/server/actions/login";
+import { useRouter } from 'next/navigation';
 
 
 
 export default function LoginForm() {
+    const router = useRouter();
+
     const form = useForm<z.infer<typeof LoginSchema>>({
         resolver: zodResolver(LoginSchema),
         defaultValues: {
@@ -31,14 +34,36 @@ export default function LoginForm() {
     });
 
     const { execute, status } = useAction(LoginAccount, {
-        onSuccess(data) {
-            if (data.data?.error) {
-                toast.error(data.data.error);
-            } else if (data.data?.data?.success) {
-                toast.success(data.data.data.success);
+        onSuccess(response) {
+            console.log("Login response:", response); // Add this line for debugging
+
+            if (response && 'data' in response && response.data) {
+                if ('error' in response.data) {
+                    toast.error(response.data.error);
+                } else if ('success' in response.data && typeof response.data.success === 'string') {
+                    toast.success(response.data.success);
+
+                    // Check for redirectUrl and redirect if present
+                    if ('redirectUrl' in response.data && typeof response.data.redirectUrl === 'string') {
+                        console.log("Redirecting to:", response.data.redirectUrl); // Add this line for debugging
+                        router.push(response.data.redirectUrl);
+                    } else {
+                        console.log("No redirectUrl found in response"); // Add this line for debugging
+                        router.push("/"); // Fallback to main page if no redirectUrl
+                    }
+                }
+            } else {
+                console.log("Unexpected response structure:", response); // Add this line for debugging
             }
         },
+        onError(error) {
+            console.error("Login error:", error); // Add this line for error handling
+            toast.error("An error occurred during login. Please try again.");
+        }
     });
+
+
+
 
     const onSubmit = (
         values: z.infer<typeof LoginSchema>
